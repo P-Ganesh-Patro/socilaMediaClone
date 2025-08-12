@@ -2,6 +2,8 @@ package com.liquibase.demo.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,10 +17,12 @@ public class GroupPost {
 
     @ManyToOne
     @JoinColumn(name="group_id",nullable = false)
+    @JsonBackReference("group-groupPosts")
     private Group group;
 
     @ManyToOne
     @JoinColumn(name="user_id",nullable = false)
+    @JsonBackReference("group-posts")
     private User user;
 
     @ManyToOne

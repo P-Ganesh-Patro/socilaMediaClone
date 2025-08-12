@@ -6,6 +6,7 @@ import com.liquibase.demo.dto2.GroupDTO;
 import com.liquibase.demo.model.Post;
 import com.liquibase.demo.response.APIResponse;
 import com.liquibase.demo.services.GroupService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/groups")
+@Tag(name = "Group")
 public class GroupController {
     @Autowired
     private GroupService groupService;

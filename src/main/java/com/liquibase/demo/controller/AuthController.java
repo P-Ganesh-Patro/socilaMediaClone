@@ -1,7 +1,6 @@
 package com.liquibase.demo.controller;
 
-import com.liquibase.demo.dto2.LoginDTO;
-import com.liquibase.demo.dto2.SignUpDTO;
+import com.liquibase.demo.dto2.*;
 import com.liquibase.demo.exception.UserNotFoundException;
 import com.liquibase.demo.jwt.JwtUtil;
 import com.liquibase.demo.model.User;
@@ -12,10 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -34,27 +30,26 @@ public class AuthController {
 
     @Operation(summary = "user signUp")
     @PostMapping("/signup")
-    public ResponseEntity<APIResponse<SignUpDTO>> signUpUser(@RequestBody User user) {
+    public ResponseEntity<APIResponse<SignUpResponseDTO>> signUpUser(@RequestBody SignUpRequestDTO user) {
         try {
 
-            LocalDate localDateTime = LocalDate.now();
-            if ((user.getDateOfBirth().isAfter(localDateTime))) {
+            LocalDate today = LocalDate.now();
+
+            if (user.getDob() == null) {
+                throw new IllegalStateException("Date of birth cannot be null");
+            }
+
+            if (user.getDob().isAfter(today)) {
                 throw new IllegalStateException("Date of birth must be before the current date");
             }
-            User createdUser = authService.createUser(user);
-            SignUpDTO dto = new SignUpDTO(
-                    createdUser.getId(),
-                    createdUser.getUsername(),
-                    createdUser.getFirstName(),
-                    createdUser.getLastName(),
-                    createdUser.getEmail(),
-                    createdUser.getDateOfBirth()
-            );
 
-            APIResponse<SignUpDTO> response = new APIResponse<>("User registered successfully",  dto);
+            SignUpResponseDTO createdUser = authService.createUser(user);
+
+
+            APIResponse<SignUpResponseDTO> response = new APIResponse<>("User registered successfully", createdUser);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception ex) {
-            APIResponse<SignUpDTO> response = new APIResponse<>(ex.getMessage(),  null);
+            APIResponse<SignUpResponseDTO> response = new APIResponse<>(ex.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
@@ -64,7 +59,6 @@ public class AuthController {
     public ResponseEntity<APIResponse<LoginDTO>> loginUser(@RequestBody Map<String, String> loginData) {
         try {
             String usernameOrEmail = loginData.get("username");
-//            or email
             String password = loginData.get("password");
             User user = authService.loginUser(usernameOrEmail, password).getBody();
 
@@ -92,11 +86,28 @@ public class AuthController {
                     responseData
             );
             return new ResponseEntity(response, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            throw new UserNotFoundException("Invalid username or password");
         } catch (Exception e) {
             throw new com.liquibase.demo.exception.Exception("Login failed:- " + e.getMessage());
         }
+    }
+
+
+    @Operation(summary = "User password change")
+    @PutMapping("/{id}")
+    public ResponseEntity<APIResponse<ChangePasswordResponseDTO>> passwordChange(@PathVariable Long id, @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO) throws Exception {
+        User user = authService.getUser(id, changePasswordRequestDTO);
+
+        ChangePasswordResponseDTO responseDTO = new ChangePasswordResponseDTO(
+                user.getId(),
+                "Password changed successfully"
+        );
+
+        APIResponse apiResponse = new APIResponse(
+                "password changed...",
+                responseDTO
+        );
+        return new ResponseEntity(apiResponse, HttpStatus.OK);
+
     }
 
 }

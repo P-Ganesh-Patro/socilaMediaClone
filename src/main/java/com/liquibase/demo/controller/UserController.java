@@ -2,9 +2,10 @@
 package com.liquibase.demo.controller;
 
 
-import com.liquibase.demo.dto2.SignUpDTO;
+import com.liquibase.demo.dto2.SignUpResponseDTO;
+import com.liquibase.demo.dto2.UserUpdateRequestDTO;
+import com.liquibase.demo.dto2.UserUpdateResponseDTO;
 import com.liquibase.demo.exception.UserNotFoundException;
-import com.liquibase.demo.model.User;
 import com.liquibase.demo.response.APIResponse;
 import com.liquibase.demo.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,27 +25,18 @@ public class UserController {
 
     @Operation(summary = "update user by id")
     @PutMapping("/update/{id}")
-    public ResponseEntity<APIResponse<SignUpDTO>> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<APIResponse<UserUpdateResponseDTO>> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequestDTO user) {
         try {
-            user.setId(id);
-            User updatedUser = userServiceImpl.updateUser(user);
 
-            SignUpDTO dto = new SignUpDTO(
-                    updatedUser.getId(),
-                    updatedUser.getUsername(),
-                    updatedUser.getFirstName(),
-                    updatedUser.getLastName(),
-                    updatedUser.getEmail(),
-                    updatedUser.getDateOfBirth()
-            );
+            UserUpdateResponseDTO updatedUser = userServiceImpl.updateUser(id, user);
 
-            APIResponse<SignUpDTO> response = new APIResponse<>("User updated successfully", dto);
+            APIResponse<UserUpdateResponseDTO> response = new APIResponse<>("User updated successfully", updatedUser);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (RuntimeException e) {
-            APIResponse<SignUpDTO> response = new APIResponse<>("User update failed: " + e.getMessage(), null);
+            APIResponse<UserUpdateResponseDTO> response = new APIResponse<>("User update failed: " + e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            APIResponse<SignUpDTO> response = new APIResponse<>("Unexpected error: " + e.getMessage(),  null);
+            APIResponse<UserUpdateResponseDTO> response = new APIResponse<>("Unexpected error: " + e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -52,28 +44,18 @@ public class UserController {
 
     @Operation(summary = "delete user by id")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<APIResponse<SignUpDTO>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<APIResponse<SignUpResponseDTO>> deleteUser(@PathVariable Long id) {
         try {
-            User deletedUser = userServiceImpl.deleteUser(id);
+            SignUpResponseDTO deletedUser = userServiceImpl.deleteUser(id);
 
-            SignUpDTO dto = new SignUpDTO(
-                    deletedUser.getId(),
-                    deletedUser.getUsername(),
-                    deletedUser.getFirstName(),
-                    deletedUser.getLastName(),
-                    deletedUser.getEmail(),
-                    deletedUser.getDateOfBirth()
-
-            );
-
-            APIResponse<SignUpDTO> response = new APIResponse<>("User deleted successfully",  dto);
+            APIResponse<SignUpResponseDTO> response = new APIResponse<>("User deleted successfully", deletedUser);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (RuntimeException e) {
-            APIResponse<SignUpDTO> response = new APIResponse<>("User deletion failed: " + e.getMessage(), null);
+            APIResponse<SignUpResponseDTO> response = new APIResponse<>("User deletion failed: " + e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            APIResponse<SignUpDTO> response = new APIResponse<>("Unexpected error: " + e.getMessage(), null);
+            APIResponse<SignUpResponseDTO> response = new APIResponse<>("Unexpected error: " + e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -81,20 +63,13 @@ public class UserController {
 
     @Operation(summary = "Get user by id")
     @GetMapping("/{id}")
-    public ResponseEntity<APIResponse<SignUpDTO>> userGetById(@PathVariable Long id) {
+    public ResponseEntity<APIResponse<SignUpResponseDTO>> userGetById(@PathVariable Long id) {
         try {
-            User user = userServiceImpl.getUserById(id);
-            SignUpDTO signUpDTO = new SignUpDTO(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getEmail(),
-                    user.getDateOfBirth()
-            );
-            APIResponse<SignUpDTO> response = new APIResponse<>(
+            SignUpResponseDTO user = userServiceImpl.getUserById(id);
+
+            APIResponse<SignUpResponseDTO> response = new APIResponse<>(
                     "user fetched successfully",
-                    signUpDTO
+                    user
             );
             return new ResponseEntity<>(response, HttpStatus.OK);
 

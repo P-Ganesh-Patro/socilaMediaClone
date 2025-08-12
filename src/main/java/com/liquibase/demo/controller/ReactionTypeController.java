@@ -5,6 +5,7 @@ import java.util.List;
 import com.liquibase.demo.dto2.ReactionTypeDTO;
 import com.liquibase.demo.response.APIResponse;
 import com.liquibase.demo.services.ReactionTypeService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/reaction-types")
+@Tag(name = "Reaction Types")
 public class ReactionTypeController {
     @Autowired
     private ReactionTypeService reactionTypeService;

@@ -1,11 +1,13 @@
 package com.liquibase.demo.services;
 
+import com.liquibase.demo.dto2.SignUpResponseDTO;
+import com.liquibase.demo.dto2.UserUpdateRequestDTO;
+import com.liquibase.demo.dto2.UserUpdateResponseDTO;
 import com.liquibase.demo.exception.UserNotFoundException;
 import com.liquibase.demo.model.User;
 import com.liquibase.demo.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -17,46 +19,68 @@ public class UserService {
     private final UserRepository userRepository;
 
 
-
-
-    @Transactional
-    public User deleteUser(Long id) {
+    public SignUpResponseDTO deleteUser(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
 
         if (optionalUser.isEmpty()) {
             throw new UserNotFoundException("User ID not found");
         }
-
         User user = optionalUser.get();
-
-        if (user.getDeletedAt() != null) {
-            throw new UserNotFoundException("User already deleted");
-        }
-
         user.setDeletedAt(LocalDateTime.now());
-        return userRepository.save(user);
-    }
-    public User updateUser(User user) {
-        Optional<com.liquibase.demo.model.User> existingUserOptional = userRepository.findById(user.getId());
+        userRepository.save(user);
+        return new SignUpResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getDateOfBirth()
 
+        );
+
+    }
+
+    public UserUpdateResponseDTO updateUser(Long id, UserUpdateRequestDTO user) {
+        Optional<User> existingUserOptional = userRepository.findById(id);
         if (existingUserOptional.isEmpty()) {
-            throw new RuntimeException("User not found with ID: " + user.getId());
+            throw new RuntimeException("User not found with ID: " + id);
         }
         User existingUser = existingUserOptional.get();
-        existingUser.setUsername(user.getUsername());
+        existingUser.setUsername(user.getUserName());
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setEmail(user.getEmail());
-        existingUser.setPassword(user.getPassword());
-        existingUser.setProfilePicUrl(user.getProfilePicUrl());
         existingUser.setUpdatedAt(LocalDateTime.now());
 
-        return userRepository.save(existingUser);
+        User updateUser = userRepository.save(existingUser);
+
+        return new UserUpdateResponseDTO(
+                updateUser.getId(),
+                updateUser.getUsername(),
+                updateUser.getFirstName(),
+                updateUser.getLastName(),
+                updateUser.getEmail(),
+                updateUser.getDateOfBirth(),
+                updateUser.getCreatedAt(),
+                updateUser.getUpdatedAt()
+        );
+
     }
 
 
-    public User getUserById(Long id) {
-        Optional<User> user = userRepository.findById(id);
-        return user.get();
+    public SignUpResponseDTO getUserById(Long id) {
+        User user = userRepository.findById(id).get();
+        return new SignUpResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getDateOfBirth()
+        );
+
+
     }
 }

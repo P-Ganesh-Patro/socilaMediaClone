@@ -36,7 +36,9 @@ public class SwaggerConfig {
                 new Tag().name("Group Posts").description("Operations for group posts"),
                 new Tag().name("Post Files").description("Upload and manage post-related files"),
                 new Tag().name("Reaction on Post").description("Managing reactions on post"),
-                new Tag().name("User APIs").description("update, delete & fetch- users")
+                new Tag().name("User APIs").description("update, delete & fetch- users"),
+                new Tag().name("Reaction Types"),
+                new Tag().name("Group Role")
 
         );
 

@@ -43,7 +43,7 @@ public class Group {
     private List<GroupMember> members;
 
     @OneToMany(mappedBy = "group")
-    @JsonManagedReference("group-posts")
+    @JsonManagedReference("group-groupPosts")
     private List<GroupPost> groupPosts;
 
     public Group(User createdBy, String displayName, String description) {

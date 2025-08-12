@@ -22,12 +22,13 @@ public class CommentService {
 
     @Autowired
     private UserRepository userRepo;
-    @Autowired private PostRepository postRepo;
+    @Autowired
+    private PostRepository postRepo;
 
 
     public CommentDTO create(CommentDTO dto) {
-        User user= userRepo.findById(dto.getUserId()).orElseThrow(()->new UserNotFoundException("User not exists"));
-        Comment comment=new Comment();
+        User user = userRepo.findById(dto.getUserId()).orElseThrow(() -> new UserNotFoundException("User not exists"));
+        Comment comment = new Comment();
         comment.setUser(user);
         comment.setParentId((dto.getParentId()));
         comment.setParentType(dto.getParentType());
@@ -51,25 +52,30 @@ public class CommentService {
         return commentRepo.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
-    public CommentDTO getCommentById(Long id){
-        Comment comment=commentRepo.findById(id).orElseThrow(()->new UserNotFoundException("comment not found"));
+    public CommentDTO getCommentById(Long id) {
+        Comment comment = commentRepo.findById(id).orElseThrow(() -> new UserNotFoundException("comment not found"));
         return mapToDTO(comment);
     }
 
     public List<CommentDTO> getCommentsByParent(Long parentId, String parentType) {
-        return commentRepo.findByParentIdAndParentType(parentId ,parentType).stream().map(this::mapToDTO).collect(Collectors.toList());
+        return commentRepo.findByParentIdAndParentType(parentId, parentType).stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     public void deleteComment(Long id) {
-        Comment comment=commentRepo.findById(id).orElseThrow(()->new UserNotFoundException("Comment not found"));
-        commentRepo.delete(comment);
+        Comment comment = commentRepo.findById(id).orElseThrow(() -> new UserNotFoundException("Comment not found"));
+        if(comment!=null){
+            comment.setDeletedAt(LocalDateTime.now());
+        }
+
+        commentRepo.save(comment);
+//        commentRepo.delete(comment);
     }
 
     public CommentDTO updateComment(Long id, CommentDTO dto) {
-        Comment comment=commentRepo.findById(id).orElseThrow(()->new UserNotFoundException("Comment not found"));
+        Comment comment = commentRepo.findById(id).orElseThrow(() -> new UserNotFoundException("Comment not found"));
         comment.setComment(dto.getComment());
         comment.setUpdatedAt(LocalDateTime.now());
-        Comment updated=commentRepo.save(comment);
+        Comment updated = commentRepo.save(comment);
         return mapToDTO(updated);
     }
 

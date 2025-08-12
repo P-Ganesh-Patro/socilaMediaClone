@@ -1,6 +1,8 @@
 package com.liquibase.demo.services;
 
+import com.liquibase.demo.exception.UserNotFoundException;
 import com.liquibase.demo.repository.UserRepository;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,9 +18,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
+        System.out.println("Trying to load user by username: " + username);
+        var user = userRepository.findByUsername(username).orElseThrow(()-> new UserNotFoundException("user not found"));
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword())

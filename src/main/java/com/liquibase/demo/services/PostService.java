@@ -33,7 +33,8 @@ public class PostService {
     @Autowired
     private UserRepository userRepo;
 
-    @Autowired private PostMediaRepository postMediaRepo;
+    @Autowired
+    private PostMediaRepository postMediaRepo;
 
     @Autowired
     private Cloudinary cloudinary;
@@ -52,7 +53,7 @@ public class PostService {
 
         for (MultipartFile file : mediaFiles) {
             try {
-                Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type","auto"));
+                Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type", "auto"));
                 String url = uploadResult.get("secure_url").toString();
                 String mediaType = file.getContentType();
 
@@ -81,7 +82,7 @@ public class PostService {
     }
 
     private PostDTO mapToDTO(Post post) {
-        List<PostMediaDTO> mediaDTOs = post.getMedia().stream().map(media -> new PostMediaDTO(media.getMediaUrl(),media.getMediaType())).collect(Collectors.toList());
+        List<PostMediaDTO> mediaDTOs = post.getMedia().stream().map(media -> new PostMediaDTO(media.getMediaUrl(), media.getMediaType())).collect(Collectors.toList());
 
         return new PostDTO(
                 post.getId(),
@@ -103,17 +104,25 @@ public class PostService {
 
     public void deletePost(Long id) {
         Post post = postRepo.findById(id).orElseThrow(() -> new UserNotFoundException("Post doesn't exist with id " + id));
-        postRepo.delete(post);
+        if (post != null) {
+            post.setDeletedAt(LocalDateTime.now());
+            postRepo.save(post);
+        }
+        if(post.getDeletedAt() !=null){
+            throw new UserNotFoundException("post not found");
+        }
+
     }
 
     public PostDTO updatePost(Long id, PostDTO dto) {
         Post post = postRepo.findById(id).orElseThrow(() -> new UserNotFoundException("Post doesn't exist with id " + id));
         post.setContent(dto.getContent());
-        post.setUpdatedAt(LocalDateTime.now() );
+        post.setUpdatedAt(LocalDateTime.now());
 
-        Post updated=postRepo.save(post);
+        Post updated = postRepo.save(post);
         return mapToDTO(updated);
     }
+
     public List<PostDTO> getPostsByUser(Long userId) {
         List<Post> posts = postRepo.findByUserId(userId);
         return posts.stream().map(this::mapToDTO).collect(Collectors.toList());

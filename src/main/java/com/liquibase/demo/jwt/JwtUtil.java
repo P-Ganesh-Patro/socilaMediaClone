@@ -17,9 +17,9 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    private final String SECRET_KEY = "secret-key-secret-key-secret-key-secret-key";
-    private final long ACCESS_TOKEN_VALIDITY = 1000 * 60 * 15;      // 15 minutes
-    private final long REFRESH_TOKEN_VALIDITY = 1000 * 60 * 60 * 24; // 24 hours
+    private final String SECRET_KEY = "abcdefghijklmnopqrstuvwxyz123456";
+    private final long ACCESS_TOKEN_VALIDITY = 1000 * 60 * 15;
+    private final long REFRESH_TOKEN_VALIDITY = 1000 * 60 * 60 * 24;
 
     private SecretKey getSignKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
