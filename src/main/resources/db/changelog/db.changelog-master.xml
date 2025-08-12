@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <include file="tables/users.xml" relativeToChangelogFile="true"/>
+    <include file="tables/groups.xml" relativeToChangelogFile="true"/>
+    <include file="tables/group_roles.xml" relativeToChangelogFile="true"/>
+    <include file="tables/reaction_types.xml" relativeToChangelogFile="true"/>
+
+    <include file="tables/posts.xml" relativeToChangelogFile="true"/>
+    <include file="tables/posts_media.xml" relativeToChangelogFile="true"/>
+    <include file="tables/comments.xml" relativeToChangelogFile="true"/>
+    <include file="tables/reactions.xml" relativeToChangelogFile="true"/>
+    <include file="tables/group_posts.xml" relativeToChangelogFile="true"/>
+    <include file="tables/group_members.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="1" author="ganesh">
+        <createTable tableName="posts_media">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="post_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_posts_media_posts" references="posts(id)"/>
+            </column>
+            <column name="media_url" type="varchar(500)"/>
+            <column name="media_type" type="varchar(50)"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="posts_media"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="update-media-type-length" author="ganesh">
+        <modifyDataType
+                tableName="posts_media"
+                columnName="media_type"
+                newDataType="VARCHAR(100)"/>
+    </changeSet>
+</databaseChangeLog>
