@@ -56,22 +56,13 @@ public class AuthController {
 
     @Operation(summary = "user Login")
     @PostMapping("/login")
-    public ResponseEntity<APIResponse<LoginDTO>> loginUser(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<APIResponse<LoginDTO>> loginUser(@RequestBody LoginRequestDTO loginData) {
         try {
-            String usernameOrEmail = loginData.get("username");
-            String password = loginData.get("password");
+            String usernameOrEmail = loginData.getUserNameOrEmail();
+            String password = loginData.getPassword();
             User user = authService.loginUser(usernameOrEmail, password).getBody();
 
-            LoginDTO loginDTO = new LoginDTO(
-                    user.getId(),
-                    user.getUsername(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getEmail(),
-                    user.getComments(),
-                    user.getPosts(),
-                    user.getReactions()
-            );
+            LoginDTO loginDTO = new LoginDTO(user.getId(), user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getComments(), user.getPosts(), user.getReactions());
 
             String accessToken = jwtUtil.generateAccessToken(user.getUsername());
             String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
@@ -81,10 +72,7 @@ public class AuthController {
             responseData.put("accessToken", accessToken);
             responseData.put("refreshToke", refreshToken);
 
-            APIResponse<Map<String, Object>> response = new APIResponse<>(
-                    "Login successful",
-                    responseData
-            );
+            APIResponse<Map<String, Object>> response = new APIResponse<>("Login successful", responseData);
             return new ResponseEntity(response, HttpStatus.OK);
         } catch (Exception e) {
             throw new com.liquibase.demo.exception.Exception("Login failed:- " + e.getMessage());
@@ -97,15 +85,9 @@ public class AuthController {
     public ResponseEntity<APIResponse<ChangePasswordResponseDTO>> passwordChange(@PathVariable Long id, @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO) throws Exception {
         User user = authService.getUser(id, changePasswordRequestDTO);
 
-        ChangePasswordResponseDTO responseDTO = new ChangePasswordResponseDTO(
-                user.getId(),
-                "Password changed successfully"
-        );
+        ChangePasswordResponseDTO responseDTO = new ChangePasswordResponseDTO(user.getId(), "Password changed successfully");
 
-        APIResponse apiResponse = new APIResponse(
-                "password changed...",
-                responseDTO
-        );
+        APIResponse apiResponse = new APIResponse("password changed...", responseDTO);
         return new ResponseEntity(apiResponse, HttpStatus.OK);
 
     }
