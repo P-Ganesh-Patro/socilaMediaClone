@@ -1,5 +1,6 @@
 package com.liquibase.demo.services;
 
+import com.liquibase.demo.dto2.LoginDTO;
 import com.liquibase.demo.dto2.SignUpResponseDTO;
 import com.liquibase.demo.dto2.UserUpdateRequestDTO;
 import com.liquibase.demo.dto2.UserUpdateResponseDTO;
@@ -7,6 +8,10 @@ import com.liquibase.demo.exception.UserNotFoundException;
 import com.liquibase.demo.model.User;
 import com.liquibase.demo.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,7 +41,6 @@ public class UserService {
                 user.getEmail(),
                 user.getCreatedAt(),
                 user.getDateOfBirth()
-
         );
 
     }
@@ -78,9 +82,22 @@ public class UserService {
                 user.getLastName(),
                 user.getEmail(),
                 user.getCreatedAt(),
-                user.getDateOfBirth()
-        );
-
-
+                user.getDateOfBirth());
     }
+
+    public Page<LoginDTO> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<User> allPage = userRepository.findAll(pageable);
+        return allPage.map(user -> new LoginDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getDateOfBirth()
+        ));
+    }
+
 }

@@ -2,6 +2,7 @@
 package com.liquibase.demo.controller;
 
 
+import com.liquibase.demo.dto2.LoginDTO;
 import com.liquibase.demo.dto2.SignUpResponseDTO;
 import com.liquibase.demo.dto2.UserUpdateRequestDTO;
 import com.liquibase.demo.dto2.UserUpdateResponseDTO;
@@ -11,6 +12,7 @@ import com.liquibase.demo.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -77,6 +79,17 @@ public class UserController {
             throw new UserNotFoundException(e.getMessage());
         }
 
+    }
+
+    @Operation(summary = "get all users")
+    @GetMapping
+    public ResponseEntity<APIResponse<Page<LoginDTO>>> getAllUsers(@RequestParam(defaultValue = "0") int pageNum, @RequestParam(defaultValue = "5") int sizeNum) {
+        Page<LoginDTO> allUsers = userServiceImpl.getAllUsers(pageNum, sizeNum);
+        APIResponse<Page<LoginDTO>> response = new APIResponse<>(
+                "all users fetched successfully",
+                allUsers
+        );
+        return new ResponseEntity(response, HttpStatus.OK);
     }
 
 

@@ -6,19 +6,22 @@ import com.liquibase.demo.model.Reaction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class LoginDTO {
     private Long id;
     private String userName;
     private String firstName;
     private String lastName;
     private String email;
-    private List<Comment> comment;
-    private List<Post> post;
-    private List<Reaction> reaction;
+    private LocalDateTime createdAt;
+    private LocalDate dateOfBirth;
 }

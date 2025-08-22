@@ -64,7 +64,7 @@ public class CommentController {
 
     @Operation(summary = "get comment by commentId")
     @GetMapping("/comment/{commentId}")
-    public ResponseEntity<APIResponse<List<CommentDTO>>> getcommentsByComment(@PathVariable Long commentId){
+    public ResponseEntity<APIResponse<List<CommentDTO>>> getCommentsByComment(@PathVariable Long commentId){
         List<CommentDTO> comments=commentService.getCommentsByParent(commentId,"COMMENT");
         APIResponse<List<CommentDTO>> apiResponse = new APIResponse<>("All comments for comment retrieved successfully", comments);
         return new ResponseEntity<>(apiResponse,HttpStatus.OK);
