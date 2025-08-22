@@ -1,7 +1,6 @@
 package com.liquibase.demo.controller;
 
 import com.liquibase.demo.dto2.*;
-import com.liquibase.demo.exception.UserNotFoundException;
 import com.liquibase.demo.jwt.JwtUtil;
 import com.liquibase.demo.model.User;
 import com.liquibase.demo.response.APIResponse;
@@ -11,6 +10,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -23,30 +26,28 @@ import java.util.Map;
 @AllArgsConstructor
 @Tag(name = "User Authentication", description = "Handles user signup and login operations")
 public class AuthController {
-
     private final AuthService authService;
-
     private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
     @Operation(summary = "user signUp")
-    @PostMapping("/signup")
+    @PostMapping(value = "/signup")
     public ResponseEntity<APIResponse<SignUpResponseDTO>> signUpUser(@RequestBody SignUpRequestDTO user) {
         try {
-
             LocalDate today = LocalDate.now();
 
+            System.out.println(user);
             if (user.getDob() == null) {
                 throw new IllegalStateException("Date of birth cannot be null");
             }
-
             if (user.getDob().isAfter(today)) {
                 throw new IllegalStateException("Date of birth must be before the current date");
             }
 
             SignUpResponseDTO createdUser = authService.createUser(user);
 
-
             APIResponse<SignUpResponseDTO> response = new APIResponse<>("User registered successfully", createdUser);
+
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception ex) {
             APIResponse<SignUpResponseDTO> response = new APIResponse<>(ex.getMessage(), null);
@@ -58,12 +59,21 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<APIResponse<LoginDTO>> loginUser(@RequestBody LoginRequestDTO loginData) {
         try {
-            String usernameOrEmail = loginData.getUserNameOrEmail();
-            String password = loginData.getPassword();
-            User user = authService.loginUser(usernameOrEmail, password).getBody();
+            System.out.println("login dto " + loginData);
 
-            LoginDTO loginDTO = new LoginDTO(user.getId(), user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getComments(), user.getPosts(), user.getReactions());
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginData.getUserNameOrEmail(), loginData.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            User user = null;
+            if (authentication != null) {
+                System.out.println("current user  " + authentication.getName());
+                String usernameOrEmail = loginData.getUserNameOrEmail();
+                String password = loginData.getPassword();
+                user = authService.loginUser(usernameOrEmail, password).getBody();
+                System.out.println("id - " + user.getId());
+            }
 
+
+            LoginDTO loginDTO = new LoginDTO(user.getId(), user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getCreatedAt(), user.getDateOfBirth());
             String accessToken = jwtUtil.generateAccessToken(user.getUsername());
             String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
 
@@ -79,17 +89,43 @@ public class AuthController {
         }
     }
 
-
     @Operation(summary = "User password change")
-    @PutMapping("/{id}")
-    public ResponseEntity<APIResponse<ChangePasswordResponseDTO>> passwordChange(@PathVariable Long id, @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO) throws Exception {
-        User user = authService.getUser(id, changePasswordRequestDTO);
+    @PutMapping("/change-password")
+    public ResponseEntity<APIResponse<ChangePasswordResponseDTO>> passwordChange(
+            @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO
+    ) {
 
-        ChangePasswordResponseDTO responseDTO = new ChangePasswordResponseDTO(user.getId(), "Password changed successfully");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
 
-        APIResponse apiResponse = new APIResponse("password changed...", responseDTO);
-        return new ResponseEntity(apiResponse, HttpStatus.OK);
+        User user = null;
+        if (authentication != null) {
+            System.out.println("current user password change:- " + username);
+            user = authService.changePassword(changePasswordRequestDTO, username);
+        }
 
+        ChangePasswordResponseDTO responseDTO =
+                new ChangePasswordResponseDTO(user.getId(), user.getUsername());
+
+        return ResponseEntity.ok(
+                new APIResponse<>("Password changed successfully", responseDTO)
+        );
+    }
+
+
+//    @Operation(summary = "Reset password")
+//    @PutMapping("/reset-password")
+//    public ResponseEntity<APIResponse<LoginDTO>> resetPassword() {
+//        return null;
+//    }
+
+    @Operation(summary = "refresh token")
+    @PostMapping("/refresh-token")
+    public ResponseEntity<APIResponse<RefreshTokenResponseGenerateDTO>> refreshToken(@RequestBody Map<String, String> requestRefreshToken) {
+        String refreshToken = requestRefreshToken.get("refreshToken");
+        System.out.println("refresh token " + refreshToken);
+        RefreshTokenResponseGenerateDTO refreshTokenService = authService.generateRefreshTokenRefresh(refreshToken);
+        return new ResponseEntity(refreshTokenService, HttpStatus.OK);
     }
 
 }

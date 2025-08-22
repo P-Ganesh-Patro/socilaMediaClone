@@ -1,18 +1,18 @@
 package com.liquibase.demo.model;
 
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Entity
-@Table(name="users")
 @Data
+@Table(name="users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,7 +73,4 @@ public class User {
     public void createDate(){
         this.createdAt = LocalDateTime.now();
     }
-
-
-
 }

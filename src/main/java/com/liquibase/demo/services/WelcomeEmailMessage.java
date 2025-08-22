@@ -1,30 +1,27 @@
 package com.liquibase.demo.services;
 
 import com.liquibase.demo.model.User;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
-
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
-
-
-import jakarta.mail.MessagingException;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
+@AllArgsConstructor
 public class WelcomeEmailMessage {
-    @Autowired
-    private JavaMailSender mailSender;
 
-    @Autowired
-    private TemplateEngine templateEngine;
+    private final JavaMailSender mailSender;
+
+    private final SpringTemplateEngine templateEngine;
 
     public void sendWelcomeEmail(User user) {
         Context context = new Context();
         context.setVariable("name", user.getFirstName());
-
+        context.setVariable("email", user.getEmail());
         String htmlBody = templateEngine.process("Welcome", context);
 
         try {
