@@ -1,7 +1,5 @@
 package com.liquibase.demo.controller;
 
-import java.util.List;
-
 import com.liquibase.demo.dto2.GroupDTO;
 import com.liquibase.demo.model.Post;
 import com.liquibase.demo.response.APIResponse;
@@ -10,14 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 
@@ -52,19 +45,22 @@ public class GroupController {
         APIResponse<List<Post>> apiResponse=new APIResponse<>("Fetched posts in group",posts);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-    @GetMapping("/{id}/users")
+
+    @GetMapping("/{groupId}/users")
     public ResponseEntity<APIResponse<List<String>>> getAllUsersInGroup(@PathVariable Long id){
         List<String> users = groupService.getAllUsersInGroup(id);
         APIResponse<List<String>> apiResponse=new APIResponse<>("Fetched members in group",users);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-    @DeleteMapping("/{id}")
+
+    @DeleteMapping("/{groupId}")
     public ResponseEntity<APIResponse<String>> deleteGroup(@PathVariable Long id){
         groupService.deleteGroup(id);
         APIResponse<String> apiResponse=new APIResponse<>("Group deleted successfully","Deleted");
         return new ResponseEntity<>(apiResponse,HttpStatus.NO_CONTENT);
     }
-    @PutMapping("/{id}")
+
+    @PutMapping("/{groupId}")
     public ResponseEntity<APIResponse<GroupDTO>> updateGroup(@PathVariable Long id, @RequestBody GroupDTO dto){
         GroupDTO updated = groupService.updateGroup(id, dto);
         APIResponse<GroupDTO> apiResponse=new APIResponse<>("Group updates successfully",updated);

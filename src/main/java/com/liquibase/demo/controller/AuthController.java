@@ -35,8 +35,6 @@ public class AuthController {
     public ResponseEntity<APIResponse<SignUpResponseDTO>> signUpUser(@RequestBody SignUpRequestDTO user) {
         try {
             LocalDate today = LocalDate.now();
-
-            System.out.println(user);
             if (user.getDob() == null) {
                 throw new IllegalStateException("Date of birth cannot be null");
             }
@@ -59,18 +57,13 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<APIResponse<LoginDTO>> loginUser(@RequestBody LoginRequestDTO loginData) {
         try {
-            System.out.println("login dto " + loginData);
 
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginData.getUserNameOrEmail(), loginData.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            User user = null;
-            if (authentication != null) {
-                System.out.println("current user  " + authentication.getName());
-                String usernameOrEmail = loginData.getUserNameOrEmail();
-                String password = loginData.getPassword();
-                user = authService.loginUser(usernameOrEmail, password).getBody();
-                System.out.println("id - " + user.getId());
-            }
+
+            String usernameOrEmail = loginData.getUserNameOrEmail();
+            String password = loginData.getPassword();
+            User user = authService.loginUser(usernameOrEmail, password).getBody();
 
 
             LoginDTO loginDTO = new LoginDTO(user.getId(), user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getCreatedAt(), user.getDateOfBirth());
@@ -98,11 +91,7 @@ public class AuthController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
-        User user = null;
-        if (authentication != null) {
-            System.out.println("current user password change:- " + username);
-            user = authService.changePassword(changePasswordRequestDTO, username);
-        }
+        User user = authService.changePassword(changePasswordRequestDTO, username);
 
         ChangePasswordResponseDTO responseDTO =
                 new ChangePasswordResponseDTO(user.getId(), user.getUsername());
@@ -113,17 +102,11 @@ public class AuthController {
     }
 
 
-//    @Operation(summary = "Reset password")
-//    @PutMapping("/reset-password")
-//    public ResponseEntity<APIResponse<LoginDTO>> resetPassword() {
-//        return null;
-//    }
 
     @Operation(summary = "refresh token")
     @PostMapping("/refresh-token")
     public ResponseEntity<APIResponse<RefreshTokenResponseGenerateDTO>> refreshToken(@RequestBody Map<String, String> requestRefreshToken) {
         String refreshToken = requestRefreshToken.get("refreshToken");
-        System.out.println("refresh token " + refreshToken);
         RefreshTokenResponseGenerateDTO refreshTokenService = authService.generateRefreshTokenRefresh(refreshToken);
         return new ResponseEntity(refreshTokenService, HttpStatus.OK);
     }

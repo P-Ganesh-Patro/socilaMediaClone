@@ -2,7 +2,6 @@ package com.liquibase.demo.dto2;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
