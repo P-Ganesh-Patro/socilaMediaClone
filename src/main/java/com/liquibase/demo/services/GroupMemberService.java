@@ -1,9 +1,5 @@
 package com.liquibase.demo.services;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.liquibase.demo.dto2.GroupMemberDTO;
 import com.liquibase.demo.exception.UserNotFoundException;
 import com.liquibase.demo.model.Group;
@@ -16,6 +12,10 @@ import com.liquibase.demo.repository.GroupRoleRepository;
 import com.liquibase.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service

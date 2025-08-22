@@ -1,7 +1,6 @@
 package com.liquibase.demo.services;
 
 
-import com.cloudinary.Cloudinary;
 import com.liquibase.demo.dto2.ChangePasswordRequestDTO;
 import com.liquibase.demo.dto2.RefreshTokenResponseGenerateDTO;
 import com.liquibase.demo.dto2.SignUpRequestDTO;
@@ -34,8 +33,6 @@ public class AuthService {
     @Autowired
     WelcomeEmailMessage emailMessage;
 
-    @Autowired
-    Cloudinary cloudinary;
 
     @Autowired
     JwtUtil jwtUtil;
@@ -49,11 +46,11 @@ public class AuthService {
         User existingEmail = authRepository.findByUserEmail(email);
 
 
-        if (existingUserName != null && existingUserName.getUsername().equalsIgnoreCase(existingUserName.getUsername())) {
+        if (existingUserName != null && existingUserName.getUsername().equalsIgnoreCase(username)) {
             throw new RuntimeException("Username already exists");
         }
 
-        if (existingEmail != null && existingEmail.getEmail().equalsIgnoreCase(existingEmail.getEmail())) {
+        if (existingEmail != null && existingEmail.getEmail().equalsIgnoreCase(email)) {
             throw new RuntimeException("Email already exists");
         }
 
@@ -94,7 +91,6 @@ public class AuthService {
             System.out.println(password + user.getPassword());
             throw new RuntimeException("Invalid username or password");
         }
-        System.out.println("users " + user);
 
         return ResponseEntity.ok(user);
     }
@@ -102,7 +98,6 @@ public class AuthService {
     public User changePassword(ChangePasswordRequestDTO changePasswordRequestDTO, String username) {
 
         User user = authRepository.findByUserName(username);
-        System.out.println("user name - " + user.getUsername());
 
         if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), user.getPassword())) {
             throw new Exception("Old password is not correct");
