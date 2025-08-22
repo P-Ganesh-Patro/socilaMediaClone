@@ -47,10 +47,6 @@ public class JwtUtil {
     }
 
 
-//    public String generateUsernameToken(String jwt) {
-//        return Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(jwt).getPayload().getSubject();
-//    }
-
 
     public Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY));
